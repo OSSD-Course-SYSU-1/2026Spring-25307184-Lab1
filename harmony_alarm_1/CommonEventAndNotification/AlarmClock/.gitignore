@@ -1,9 +1,0 @@
-# Build output
-entry/build/
-.hvigor/
-
-# Dependencies
-oh_modules/
-
-# IDE
-.idea/
