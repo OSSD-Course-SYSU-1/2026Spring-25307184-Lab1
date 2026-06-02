@@ -14,6 +14,6 @@ export default class EntryAbility extends UIAbility {
     async onWindowStageCreate(windowStage: window.WindowStage): Promise<void> {
         globalThis.display = await display.getDefaultDisplay();
         await globalThis.preference.configure(this.context.getApplicationContext());
-        windowStage.loadContent('pages/MainIndex', null);
+        windowStage.loadContent('pages/Index', null);
     }
 }
