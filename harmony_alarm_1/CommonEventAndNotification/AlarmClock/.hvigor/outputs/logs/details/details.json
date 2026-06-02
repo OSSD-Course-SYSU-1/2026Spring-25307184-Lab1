@@ -7,9 +7,6 @@
         "INCLUDE_IN_BUILD": true,
         "IS_COMMAND_LINE_ENTRY_MODULE": true,
         "MODULE_TYPE": "entry",
-        "INCREMENTAL_TASKS": {
-          "COMPILE_ARKTS": true
-        },
         "IS_INCREMENTAL_MODULE": true
       }
     ],
@@ -24,38 +21,21 @@
     "IS_HVIGORFILE_TYPE_CHECK": false,
     "TASK_TIME": {
       "923fe53966c6cd9343e11af776cd4b05be315ea4b200b02e4d5dfb0f929b73bf": {
-        "PreBuild": 111115300,
-        "CreateModuleInfo": 808300,
-        "GenerateMetadata": 2624700,
-        "ConfigureCmake": 224800,
-        "MergeProfile": 5101500,
-        "CreateBuildProfile": 2111900,
-        "PreCheckSyscap": 347000,
-        "GeneratePkgContextInfo": 7277700,
-        "ProcessIntegratedHsp": 1276300,
-        "BuildNativeWithCmake": 272200,
-        "MakePackInfo": 2567900,
-        "SyscapTransform": 9045500,
-        "ProcessProfile": 160117200,
-        "ProcessRouterMap": 2599700,
-        "ProcessShareConfig": 1762900,
-        "ProcessStartupConfig": 1220100,
-        "BuildNativeWithNinja": 460300,
-        "ProcessResource": 4454800,
-        "GenerateLoaderJson": 10630500,
-        "ProcessLibs": 4841000,
-        "CompileResource": 183761400,
-        "DoNativeStrip": 5801600,
-        "BuildJS": 3000200,
-        "CacheNativeLibs": 786919100,
-        "CompileArkTS": 6304245000,
-        "GeneratePkgModuleJson": 2468700,
-        "ProcessCompiledResources": 561300,
-        "PackageHap": 41945800,
-        "PackingCheck": 3711700,
-        "SignHap": 1739200,
-        "CollectDebugSymbol": 984500,
-        "assembleHap": 399300
+        "CreateModuleInfo": 420900,
+        "ConfigureCmake": 169400,
+        "PreCheckSyscap": 172900,
+        "GeneratePkgContextInfo": 2431900,
+        "ProcessIntegratedHsp": 365900,
+        "BuildNativeWithCmake": 201100,
+        "SyscapTransform": 1128700,
+        "ProcessStartupConfig": 602500,
+        "BuildNativeWithNinja": 273500,
+        "BuildJS": 1064800,
+        "ProcessCompiledResources": 333700,
+        "PackingCheck": 2189200,
+        "SignHap": 1008800,
+        "CollectDebugSymbol": 791000,
+        "assembleHap": 141500
       }
     },
     "APIS": [
@@ -66,7 +46,7 @@
       "ENABLE_CPP_FUNCTION_LEVEL_INCREMENTAL": false
     },
     "CONFIG_PROPERTIES": {},
-    "BUILD_ID": "202606021806459860",
-    "TOTAL_TIME": 8447757400
+    "TOTAL_TIME": 141232500,
+    "BUILD_ID": "202606021854073480"
   }
 }
