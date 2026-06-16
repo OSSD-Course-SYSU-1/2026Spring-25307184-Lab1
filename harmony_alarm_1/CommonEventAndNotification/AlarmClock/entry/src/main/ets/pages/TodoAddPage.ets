@@ -15,6 +15,7 @@
 
 import router from '@ohos.router';
 import { TodoDataStore } from '../common/utils/TodoDataStore';
+import DatePickDialog from '../view/Detail/dialog/DatePickDialog';
 
 @Entry
 @Component
@@ -22,7 +23,26 @@ struct TodoAddPage {
   private dataStore: TodoDataStore = TodoDataStore.getInstance();
   @State inputTitle: string = '';
   @State inputContent: string = '';
+  @State hasDeadline: boolean = false;
+  @State deadlineTimestamp: number = 0;
+  @State deadlineLabel: string = '';
   @StorageLink('todoRefreshTrigger') refreshTrigger: number = 0;
+  @StorageLink('deadlinePickerResult') @Watch('onDeadlinePicked') deadlinePickerResult: number = 0;
+
+  datePickDialogController: CustomDialogController = new CustomDialogController({
+    builder: DatePickDialog(),
+    autoCancel: true
+  });
+
+  /**
+   * Called when the date picker dialog confirms a selection.
+   */
+  onDeadlinePicked(): void {
+    if (this.deadlinePickerResult > 0) {
+      this.deadlineTimestamp = this.deadlinePickerResult;
+      this.deadlineLabel = this.formatDeadlineLabel(this.deadlinePickerResult);
+    }
+  }
 
   /**
    * Navigate back without saving.
@@ -36,10 +56,35 @@ struct TodoAddPage {
    */
   private saveTodo(): void {
     if (this.inputTitle.trim().length > 0) {
-      this.dataStore.addTodo(this.inputTitle.trim(), this.inputContent.trim());
+      this.dataStore.addTodo(this.inputTitle.trim(), this.inputContent.trim(), this.deadlineTimestamp);
       AppStorage.set('todoRefreshTrigger', Date.now());
       router.back();
     }
+  }
+
+  /**
+   * Format deadline timestamp to display string.
+   */
+  private formatDeadlineLabel(timestamp: number): string {
+    let date = new Date(timestamp);
+    let year = date.getFullYear();
+    let month = (date.getMonth() + 1).toString();
+    if (month.length < 2) {
+      month = '0' + month;
+    }
+    let day = date.getDate().toString();
+    if (day.length < 2) {
+      day = '0' + day;
+    }
+    let hour = date.getHours().toString();
+    if (hour.length < 2) {
+      hour = '0' + hour;
+    }
+    let minute = date.getMinutes().toString();
+    if (minute.length < 2) {
+      minute = '0' + minute;
+    }
+    return year + '-' + month + '-' + day + ' ' + hour + ':' + minute;
   }
 
   build(): void {
@@ -115,6 +160,66 @@ struct TodoAddPage {
       }
       .width('100%')
       .padding(16)
+
+      // Deadline section
+      Divider()
+        .strokeWidth(1)
+        .color('#E5E7EB')
+        .margin({ top: 4, bottom: 16 })
+
+      Text('截止日期')
+        .fontSize(14)
+        .fontColor('#666666')
+        .width('100%')
+        .padding({ left: 16, right: 16 })
+        .margin({ bottom: 8 })
+
+      Row() {
+        Radio({ value: 'none', group: 'deadlineGroup' })
+          .checked(!this.hasDeadline)
+          .onChange((isChecked: boolean) => {
+            if (isChecked) {
+              this.hasDeadline = false;
+              this.deadlineTimestamp = 0;
+              this.deadlineLabel = '';
+            }
+          })
+        Text('无截止日期')
+          .fontSize(14)
+          .fontColor('#182431')
+          .margin({ left: 4, right: 24 })
+
+        Radio({ value: 'set', group: 'deadlineGroup' })
+          .checked(this.hasDeadline)
+          .onChange((isChecked: boolean) => {
+            if (isChecked) {
+              this.hasDeadline = true;
+            }
+          })
+        Text('有截止日期')
+          .fontSize(14)
+          .fontColor('#182431')
+          .margin({ left: 4 })
+      }
+      .width('100%')
+      .padding({ left: 16, right: 16 })
+      .margin({ bottom: 12 })
+
+      if (this.hasDeadline) {
+        Button() {
+          Text(this.deadlineLabel.length > 0 ? this.deadlineLabel : '选择截止日期')
+            .fontSize(14)
+            .fontColor('#FFFFFF')
+        }
+        .width('100%')
+        .height(44)
+        .backgroundColor('#007DFF')
+        .borderRadius(12)
+        .margin({ left: 16, right: 16, bottom: 12 })
+        .onClick(() => {
+          this.datePickDialogController.open();
+        })
+      }
 
       Blank()
 

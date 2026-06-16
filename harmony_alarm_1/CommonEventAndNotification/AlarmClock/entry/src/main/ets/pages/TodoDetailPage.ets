@@ -37,11 +37,37 @@ struct TodoDetailPage {
   private formatTime(timestamp: number): string {
     let date = new Date(timestamp);
     let year = date.getFullYear();
-    let month = (date.getMonth() + 1).toString().padStart(2, '0');
-    let day = date.getDate().toString().padStart(2, '0');
-    let hour = date.getHours().toString().padStart(2, '0');
-    let minute = date.getMinutes().toString().padStart(2, '0');
-    return `${year}-${month}-${day} ${hour}:${minute}`;
+    let month = (date.getMonth() + 1).toString();
+    if (month.length < 2) {
+      month = '0' + month;
+    }
+    let day = date.getDate().toString();
+    if (day.length < 2) {
+      day = '0' + day;
+    }
+    let hour = date.getHours().toString();
+    if (hour.length < 2) {
+      hour = '0' + hour;
+    }
+    let minute = date.getMinutes().toString();
+    if (minute.length < 2) {
+      minute = '0' + minute;
+    }
+    return year + '-' + month + '-' + day + ' ' + hour + ':' + minute;
+  }
+
+  /**
+   * Check if the current todo item's deadline has passed and is not completed.
+   */
+  private isDeadlineOverdue(): boolean {
+    if (!this.todoItem) {
+      return false;
+    }
+    let dl = this.todoItem.deadline;
+    if (dl === 0 || dl === undefined) {
+      return false;
+    }
+    return dl < Date.now() && !this.todoItem.isCompleted;
   }
 
   build(): void {
@@ -117,6 +143,35 @@ struct TodoDetailPage {
                 .fontSize(15)
                 .fontColor('#CCCCCC')
                 .fontStyle(FontStyle.Italic)
+                .width('100%')
+            }
+          }
+          .width('100%')
+          .padding(16)
+          .alignItems(HorizontalAlign.Start)
+
+          Divider()
+            .strokeWidth(1)
+            .color('#E5E7EB')
+
+          // Deadline section
+          Column() {
+            Text('截止日期')
+              .fontSize(14)
+              .fontColor('#666666')
+              .width('100%')
+              .margin({ bottom: 12 })
+
+            if (this.todoItem.deadline === 0 || this.todoItem.deadline === undefined) {
+              Text('无截止日期')
+                .fontSize(15)
+                .fontColor('#CCCCCC')
+                .fontStyle(FontStyle.Italic)
+                .width('100%')
+            } else {
+              Text(this.formatTime(this.todoItem.deadline))
+                .fontSize(15)
+                .fontColor(this.isDeadlineOverdue() ? '#FA2A2D' : '#182431')
                 .width('100%')
             }
           }

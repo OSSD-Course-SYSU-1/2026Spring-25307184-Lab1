@@ -7,6 +7,7 @@ export interface TodoItem {
   content: string;
   isCompleted: boolean;
   createTime: number;
+  deadline: number;   // millisecond timestamp, 0 = no deadline
 }
 
 /**
@@ -31,13 +32,14 @@ export class TodoDataStore {
   /**
    * Add a new todo item.
    */
-  addTodo(title: string, content: string): void {
+  addTodo(title: string, content: string, deadline: number): void {
     let newItem: TodoItem = {
       id: this.nextId++,
       title: title,
       content: content,
       isCompleted: false,
-      createTime: Date.now()
+      createTime: Date.now(),
+      deadline: deadline
     };
     this.todoList = [...this.todoList, newItem];
   }
@@ -67,7 +69,8 @@ export class TodoDataStore {
           title: item.title,
           content: item.content,
           isCompleted: !item.isCompleted,
-          createTime: item.createTime
+          createTime: item.createTime,
+          deadline: item.deadline
         });
       } else {
         newList.push(item);

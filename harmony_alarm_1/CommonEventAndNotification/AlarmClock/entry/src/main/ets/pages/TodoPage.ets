@@ -21,6 +21,7 @@ export struct TodoPage {
   private dataStore: TodoDataStore = TodoDataStore.getInstance();
   @State todoList: TodoItem[] = [];
   @StorageLink('todoRefreshTrigger') @Watch('onTodoRefresh') refreshTrigger: number = 0;
+  @State sortByDeadline: boolean = false;
 
   aboutToAppear(): void {
     this.loadTodoList();
@@ -42,6 +43,80 @@ export struct TodoPage {
     }
   }
 
+  /**
+   * Format deadline timestamp to display string with icon.
+   */
+  private formatDeadline(timestamp: number): string {
+    if (timestamp === 0 || timestamp === undefined) {
+      return '📅 无截止日期';
+    }
+    let date = new Date(timestamp);
+    let year = date.getFullYear();
+    let month = (date.getMonth() + 1).toString();
+    if (month.length < 2) {
+      month = '0' + month;
+    }
+    let day = date.getDate().toString();
+    if (day.length < 2) {
+      day = '0' + day;
+    }
+    let hour = date.getHours().toString();
+    if (hour.length < 2) {
+      hour = '0' + hour;
+    }
+    let minute = date.getMinutes().toString();
+    if (minute.length < 2) {
+      minute = '0' + minute;
+    }
+    return '📅 ' + year + '-' + month + '-' + day + ' ' + hour + ':' + minute;
+  }
+
+  /**
+   * Check if a todo item is overdue (deadline passed and not completed).
+   */
+  private isOverdue(item: TodoItem): boolean {
+    let dl = item.deadline;
+    if (dl === 0 || dl === undefined) {
+      return false;
+    }
+    return dl < Date.now() && !item.isCompleted;
+  }
+
+  /**
+   * Return a sorted copy of the todo list.
+   * When sortByDeadline is active, items with a deadline come first (earliest first),
+   * items without a deadline go to the bottom.
+   */
+  private getSortedList(): TodoItem[] {
+    if (!this.sortByDeadline) {
+      return this.todoList;
+    }
+    let list: TodoItem[] = [...this.todoList];
+    list.sort((a: TodoItem, b: TodoItem) => {
+      let aDeadline = a.deadline;
+      let bDeadline = b.deadline;
+      if (aDeadline === undefined) {
+        aDeadline = 0;
+      }
+      if (bDeadline === undefined) {
+        bDeadline = 0;
+      }
+      // Items without deadline go to the bottom
+      if (aDeadline === 0 && bDeadline === 0) {
+        return 0;
+      }
+      if (aDeadline === 0) {
+        return 1;
+      }
+      if (bDeadline === 0) {
+        return -1;
+      }
+      // Both have deadlines: sort ascending (earliest first)
+      return aDeadline - bDeadline;
+    });
+    return list;
+  }
+
   build(): void {
     Column() {
       // Title bar
@@ -51,6 +126,22 @@ export struct TodoPage {
           .fontWeight(FontWeight.Bold)
           .fontColor('#182431')
           .textAlign(TextAlign.Start)
+
+        Blank()
+
+        Button() {
+          Text(this.sortByDeadline ? '✓ 截止日期' : '按截止日期')
+            .fontSize(13)
+            .fontColor(this.sortByDeadline ? '#FFFFFF' : '#007DFF')
+        }
+        .height(32)
+        .backgroundColor(this.sortByDeadline ? '#007DFF' : '#00000000')
+        .borderRadius(16)
+        .border({ width: 1, color: '#007DFF' })
+        .padding({ left: 12, right: 12 })
+        .onClick(() => {
+          this.sortByDeadline = !this.sortByDeadline;
+        })
       }
       .width('100%')
       .height(56)
@@ -69,7 +160,7 @@ export struct TodoPage {
         .layoutWeight(1)
       } else {
         List({ space: 8 }) {
-          ForEach(this.todoList, (item: TodoItem) => {
+          ForEach(this.getSortedList(), (item: TodoItem) => {
             ListItem() {
               Row() {
                 // Completion checkbox
@@ -83,15 +174,25 @@ export struct TodoPage {
                     this.loadTodoList();
                   })
 
-                // Title (click to view detail)
-                Text(item.title)
-                  .fontSize(15)
-                  .fontColor(item.isCompleted ? '#999999' : '#182431')
-                  .decoration({ type: item.isCompleted ? TextDecorationType.LineThrough : TextDecorationType.None })
-                  .maxLines(2)
-                  .textOverflow({ overflow: TextOverflow.Ellipsis })
-                  .layoutWeight(1)
-                  .margin({ left: 12, right: 12 })
+                // Title and deadline
+                Column() {
+                  Text(item.title)
+                    .fontSize(15)
+                    .fontColor(item.isCompleted ? '#999999' : '#182431')
+                    .decoration({ type: item.isCompleted ? TextDecorationType.LineThrough : TextDecorationType.None })
+                    .maxLines(2)
+                    .textOverflow({ overflow: TextOverflow.Ellipsis })
+                    .width('100%')
+
+                  Text(this.formatDeadline(item.deadline))
+                    .fontSize(13)
+                    .fontColor(this.isOverdue(item) ? '#FA2A2D' : '#999999')
+                    .margin({ top: 4 })
+                    .width('100%')
+                }
+                .layoutWeight(1)
+                .margin({ left: 12, right: 12 })
+                .alignItems(HorizontalAlign.Start)
 
                 // Right arrow indicator
                 Text('›')
@@ -111,8 +212,8 @@ export struct TodoPage {
                   })
               }
               .width('100%')
-              .height(56)
-              .padding({ left: 12, right: 12 })
+              .constraintSize({ minHeight: 56 })
+              .padding({ left: 12, right: 12, top: 10, bottom: 10 })
               .backgroundColor('#FFFFFF')
               .borderRadius(12)
               .alignItems(VerticalAlign.Center)
