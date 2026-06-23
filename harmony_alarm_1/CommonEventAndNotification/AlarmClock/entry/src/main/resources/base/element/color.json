@@ -27,6 +27,46 @@
     {
       "name": "green_light",
       "value": "#17A98E"
+    },
+    {
+      "name": "todo_surface",
+      "value": "#FFFFFF"
+    },
+    {
+      "name": "todo_background",
+      "value": "#F1F3F5"
+    },
+    {
+      "name": "todo_text_primary",
+      "value": "#182431"
+    },
+    {
+      "name": "todo_text_secondary",
+      "value": "#666666"
+    },
+    {
+      "name": "todo_text_hint",
+      "value": "#999999"
+    },
+    {
+      "name": "todo_text_light",
+      "value": "#CCCCCC"
+    },
+    {
+      "name": "todo_primary",
+      "value": "#007DFF"
+    },
+    {
+      "name": "todo_danger",
+      "value": "#FA2A2D"
+    },
+    {
+      "name": "todo_border",
+      "value": "#E5E7EB"
+    },
+    {
+      "name": "todo_button_disabled",
+      "value": "#B0C4DE"
     }
   ]
 }

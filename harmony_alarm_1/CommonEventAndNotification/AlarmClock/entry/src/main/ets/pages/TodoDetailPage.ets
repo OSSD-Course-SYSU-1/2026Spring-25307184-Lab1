@@ -15,6 +15,8 @@
 
 import router from '@ohos.router';
 import { TodoDataStore, TodoItem } from '../common/utils/TodoDataStore';
+import DimensionUtil from '../common/utils/DimensionUtil';
+import { ScreenUtil, BreakpointType } from '../common/utils/ScreenUtil';
 
 @Entry
 @Component
@@ -22,48 +24,51 @@ struct TodoDetailPage {
   private dataStore: TodoDataStore = TodoDataStore.getInstance();
   private todoId: number = 0;
   @State todoItem: TodoItem | undefined = undefined;
+  @StorageLink('currentBreakpoint') currentBreakpoint: string = BreakpointType.SM;
 
   aboutToAppear(): void {
-    let params = router.getParams() as Record<string, number>;
-    if (params && params['todoId'] !== undefined) {
+    let params: Record<string, number> = router.getParams() as Record<string, number>;
+    if (params != null && params['todoId'] !== undefined) {
       this.todoId = params['todoId'];
       this.todoItem = this.dataStore.getTodoById(this.todoId);
     }
   }
 
   /**
-   * Format timestamp to readable time string.
+   * Whether current device is a tablet.
    */
-  private formatTime(timestamp: number): string {
-    let date = new Date(timestamp);
-    let year = date.getFullYear();
-    let month = (date.getMonth() + 1).toString();
-    if (month.length < 2) {
-      month = '0' + month;
-    }
-    let day = date.getDate().toString();
-    if (day.length < 2) {
-      day = '0' + day;
-    }
-    let hour = date.getHours().toString();
-    if (hour.length < 2) {
-      hour = '0' + hour;
-    }
-    let minute = date.getMinutes().toString();
-    if (minute.length < 2) {
-      minute = '0' + minute;
-    }
-    return year + '-' + month + '-' + day + ' ' + hour + ':' + minute;
+  private isTablet(): boolean {
+    return this.currentBreakpoint === BreakpointType.MD || this.currentBreakpoint === BreakpointType.LG;
   }
 
-  /**
-   * Check if the current todo item's deadline has passed and is not completed.
-   */
+  private formatTime(timestamp: number): string {
+    let date: Date = new Date(timestamp);
+    let year: number = date.getFullYear();
+    let monthNum: number = date.getMonth() + 1;
+    let monthStr: string = monthNum.toString();
+    if (monthStr.length < 2) {
+      monthStr = '0' + monthStr;
+    }
+    let dayStr: string = date.getDate().toString();
+    if (dayStr.length < 2) {
+      dayStr = '0' + dayStr;
+    }
+    let hourStr: string = date.getHours().toString();
+    if (hourStr.length < 2) {
+      hourStr = '0' + hourStr;
+    }
+    let minuteStr: string = date.getMinutes().toString();
+    if (minuteStr.length < 2) {
+      minuteStr = '0' + minuteStr;
+    }
+    return year + '-' + monthStr + '-' + dayStr + ' ' + hourStr + ':' + minuteStr;
+  }
+
   private isDeadlineOverdue(): boolean {
-    if (!this.todoItem) {
+    if (this.todoItem == null) {
       return false;
     }
-    let dl = this.todoItem.deadline;
+    let dl: number = this.todoItem.deadline;
     if (dl === 0 || dl === undefined) {
       return false;
     }
@@ -72,123 +77,132 @@ struct TodoDetailPage {
 
   build(): void {
     Column() {
-      // Title bar with back button
+      // Title bar
       Row() {
         Button() {
-          Text('← 返回')
-            .fontSize(16)
-            .fontColor('#007DFF')
+          Text($r('app.string.todo_back'))
+            .fontSize(DimensionUtil.getFp($r('app.float.todo_detail_back_font_size')))
+            .fontColor($r('app.color.todo_primary'))
         }
         .backgroundColor(Color.Transparent)
         .onClick(() => {
           router.back();
         })
 
-        Text('待办详情')
-          .fontSize(20)
+        Text($r('app.string.todo_detail'))
+          .fontSize(DimensionUtil.getFp($r('app.float.todo_detail_title_font_size')))
           .fontWeight(FontWeight.Bold)
-          .fontColor('#182431')
+          .fontColor($r('app.color.todo_text_primary'))
           .layoutWeight(1)
           .textAlign(TextAlign.Center)
       }
       .width('100%')
-      .height(56)
-      .padding({ left: 12, right: 12 })
+      .height(DimensionUtil.getVp($r('app.float.todo_detail_bar_height')))
+      .padding({
+        left: DimensionUtil.getVp($r('app.float.todo_detail_bar_padding')),
+        right: DimensionUtil.getVp($r('app.float.todo_detail_bar_padding'))
+      })
 
-      if (this.todoItem) {
+      if (this.todoItem != null) {
         Column() {
           // Title section
           Column() {
             Text(this.todoItem.title)
-              .fontSize(20)
+              .fontSize(DimensionUtil.getFp($r('app.float.todo_detail_title_font_size')))
               .fontWeight(FontWeight.Bold)
-              .fontColor('#182431')
+              .fontColor($r('app.color.todo_text_primary'))
               .width('100%')
 
             Row() {
-              Text('创建时间：')
-                .fontSize(13)
-                .fontColor('#999999')
+              Text($r('app.string.todo_create_time_label'))
+                .fontSize(DimensionUtil.getFp($r('app.float.todo_detail_create_font_size')))
+                .fontColor($r('app.color.todo_text_hint'))
               Text(this.formatTime(this.todoItem.createTime))
-                .fontSize(13)
-                .fontColor('#999999')
+                .fontSize(DimensionUtil.getFp($r('app.float.todo_detail_create_font_size')))
+                .fontColor($r('app.color.todo_text_hint'))
             }
             .width('100%')
-            .margin({ top: 8 })
+            .margin({ top: DimensionUtil.getVp($r('app.float.todo_detail_create_margin_top')) })
           }
           .width('100%')
-          .padding(16)
+          .padding(DimensionUtil.getVp($r('app.float.todo_detail_card_padding')))
           .alignItems(HorizontalAlign.Start)
 
           Divider()
             .strokeWidth(1)
-            .color('#E5E7EB')
+            .color($r('app.color.todo_border'))
 
           // Content section
           Column() {
-            Text('内容')
-              .fontSize(14)
-              .fontColor('#666666')
+            Text($r('app.string.todo_content_label'))
+              .fontSize(DimensionUtil.getFp($r('app.float.todo_detail_label_font_size')))
+              .fontColor($r('app.color.todo_text_secondary'))
               .width('100%')
-              .margin({ bottom: 12 })
+              .margin({ bottom: DimensionUtil.getVp($r('app.float.todo_detail_label_margin_bottom')) })
 
-            if (this.todoItem.content && this.todoItem.content.length > 0) {
+            if (this.todoItem.content.length > 0) {
               Text(this.todoItem.content)
-                .fontSize(15)
-                .fontColor('#182431')
-                .lineHeight(24)
+                .fontSize(DimensionUtil.getFp($r('app.float.todo_detail_value_font_size')))
+                .fontColor($r('app.color.todo_text_primary'))
+                .lineHeight(DimensionUtil.getVp($r('app.float.todo_detail_content_line_height')))
                 .width('100%')
             } else {
-              Text('暂无内容')
-                .fontSize(15)
-                .fontColor('#CCCCCC')
+              Text($r('app.string.todo_no_content'))
+                .fontSize(DimensionUtil.getFp($r('app.float.todo_detail_value_font_size')))
+                .fontColor($r('app.color.todo_text_light'))
                 .fontStyle(FontStyle.Italic)
                 .width('100%')
             }
           }
           .width('100%')
-          .padding(16)
+          .padding(DimensionUtil.getVp($r('app.float.todo_detail_card_padding')))
           .alignItems(HorizontalAlign.Start)
 
           Divider()
             .strokeWidth(1)
-            .color('#E5E7EB')
+            .color($r('app.color.todo_border'))
 
           // Deadline section
           Column() {
-            Text('截止日期')
-              .fontSize(14)
-              .fontColor('#666666')
+            Text($r('app.string.todo_deadline_label'))
+              .fontSize(DimensionUtil.getFp($r('app.float.todo_detail_label_font_size')))
+              .fontColor($r('app.color.todo_text_secondary'))
               .width('100%')
-              .margin({ bottom: 12 })
+              .margin({ bottom: DimensionUtil.getVp($r('app.float.todo_detail_label_margin_bottom')) })
 
             if (this.todoItem.deadline === 0 || this.todoItem.deadline === undefined) {
-              Text('无截止日期')
-                .fontSize(15)
-                .fontColor('#CCCCCC')
+              Text($r('app.string.todo_no_deadline'))
+                .fontSize(DimensionUtil.getFp($r('app.float.todo_detail_value_font_size')))
+                .fontColor($r('app.color.todo_text_light'))
                 .fontStyle(FontStyle.Italic)
                 .width('100%')
             } else {
               Text(this.formatTime(this.todoItem.deadline))
-                .fontSize(15)
-                .fontColor(this.isDeadlineOverdue() ? '#FA2A2D' : '#182431')
+                .fontSize(DimensionUtil.getFp($r('app.float.todo_detail_value_font_size')))
+                .fontColor(this.isDeadlineOverdue()
+                  ? $r('app.color.todo_danger')
+                  : $r('app.color.todo_text_primary'))
                 .width('100%')
             }
           }
           .width('100%')
-          .padding(16)
+          .padding(DimensionUtil.getVp($r('app.float.todo_detail_card_padding')))
           .alignItems(HorizontalAlign.Start)
         }
         .width('100%')
-        .borderRadius(16)
-        .backgroundColor('#FFFFFF')
-        .margin({ top: 16, left: 16, right: 16 })
+        .borderRadius(DimensionUtil.getVp($r('app.float.todo_detail_card_radius')))
+        .backgroundColor($r('app.color.todo_surface'))
+        .margin({
+          top: DimensionUtil.getVp($r('app.float.todo_detail_card_margin')),
+          left: DimensionUtil.getVp($r('app.float.todo_detail_card_margin')),
+          right: DimensionUtil.getVp($r('app.float.todo_detail_card_margin'))
+        })
       } else {
         Column() {
-          Text('待办事项不存在')
-            .fontSize(16)
-            .fontColor('#999999')
-            .margin({ top: 60 })
+          Text($r('app.string.todo_not_found'))
+            .fontSize(DimensionUtil.getFp($r('app.float.todo_detail_not_found_font_size')))
+            .fontColor($r('app.color.todo_text_hint'))
+            .margin({ top: DimensionUtil.getVp($r('app.float.todo_detail_not_found_margin_top')) })
         }
         .width('100%')
         .layoutWeight(1)
@@ -196,6 +210,7 @@ struct TodoDetailPage {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F1F3F5')
+    .backgroundColor($r('app.color.todo_background'))
+    .constraintSize({ maxWidth: this.isTablet() ? 600 : undefined })
   }
 }

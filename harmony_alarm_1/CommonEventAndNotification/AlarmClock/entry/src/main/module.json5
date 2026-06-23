@@ -5,7 +5,8 @@
     "description": "$string:entry_desc",
     "mainElement": "EntryAbility",
     "deviceTypes": [
-      "default"
+      "phone",
+      "tablet"
     ],
     "deliveryWithInstall": true,
     "installationFree": false,
@@ -20,7 +21,7 @@
         "startWindowIcon": "$media:icon",
         "startWindowBackground": "$color:white",
         "exported": true,
-        "orientation": "portrait",
+        "orientation": "auto_rotation",
         "skills": [
           {
             "entities": [

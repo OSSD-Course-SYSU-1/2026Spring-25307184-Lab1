@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+import { ScreenUtil } from './ScreenUtil';
+
 interface AppResourceManager {
   getNumber(id: number): number;
 }
@@ -47,14 +49,24 @@ const DESIGN_HEIGHT = 780;
 
 /**
  * Fits tools with different sizes and lengths.
+ * On phones: scales proportionally based on 360x780 design.
+ * On tablets: returns original value (vp unit naturally adapts on larger screens).
  */
 export default class DimensionUtil {
   /**
    * Obtains the screen horizontal adaptation value.
+   * On tablets, returns the raw value without scaling since vp units
+   * naturally provide appropriate visual size on larger screens.
+   * On phones, applies proportional scaling based on 360 design width.
    *
    * @return number
    */
   static adaptDimension(value: number): number {
+    // On tablets, return original value — vp unit handles density natively
+    if (ScreenUtil.isTablet()) {
+      return value;
+    }
+    // Phone: proportional scaling based on design dimensions
     let deviceDisplay: DisplayInfo = globalThis.display as DisplayInfo;
     let widthScale = deviceDisplay.width / DESIGN_WIDTH;
     let virtualHeight = widthScale * DESIGN_HEIGHT;

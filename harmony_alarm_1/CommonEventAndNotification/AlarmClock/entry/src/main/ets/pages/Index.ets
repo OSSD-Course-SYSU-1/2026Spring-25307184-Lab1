@@ -15,6 +15,7 @@
 
 import { AlarmPage } from './AlarmPage';
 import { TodoPage } from './TodoPage';
+import DimensionUtil from '../common/utils/DimensionUtil';
 
 @Entry
 @Component
@@ -29,19 +30,22 @@ struct Index {
   @Builder TabBuilder(title: string, targetIndex: number, iconText: string) {
     Column() {
       Text(iconText)
-        .fontSize(24)
-        .fontColor(this.currentIndex === targetIndex ? '#007DFF' : '#999999')
+        .fontSize(DimensionUtil.getFp($r('app.float.tab_icon_font_size')))
+        .fontColor(this.currentIndex === targetIndex ? $r('app.color.todo_primary') : $r('app.color.todo_text_hint'))
 
       Text(title)
-        .fontSize(12)
-        .fontColor(this.currentIndex === targetIndex ? '#007DFF' : '#999999')
-        .margin({ top: 2 })
+        .fontSize(DimensionUtil.getFp($r('app.float.tab_label_font_size')))
+        .fontColor(this.currentIndex === targetIndex ? $r('app.color.todo_primary') : $r('app.color.todo_text_hint'))
+        .margin({ top: DimensionUtil.getVp($r('app.float.tab_label_margin_top')) })
     }
     .justifyContent(FlexAlign.Center)
     .alignItems(HorizontalAlign.Center)
     .width('100%')
     .height('100%')
-    .padding({ top: 4, bottom: 4 })
+    .padding({
+      top: DimensionUtil.getVp($r('app.float.tab_bar_padding_vertical')),
+      bottom: DimensionUtil.getVp($r('app.float.tab_bar_padding_vertical'))
+    })
   }
 
   build(): void {
@@ -62,7 +66,7 @@ struct Index {
       .tabBar(this.TabBuilder('待办', 1, '☑'))
     }
     .scrollable(false)
-    .barHeight(56)
+    .barHeight(DimensionUtil.getVp($r('app.float.tab_bar_height')))
     .barMode(BarMode.Fixed)
     .barBackgroundColor(Color.White)
     .onChange((index: number) => {

@@ -16,6 +16,8 @@
 import router from '@ohos.router';
 import { TodoDataStore } from '../common/utils/TodoDataStore';
 import DatePickDialog from '../view/Detail/dialog/DatePickDialog';
+import DimensionUtil from '../common/utils/DimensionUtil';
+import { ScreenUtil, BreakpointType } from '../common/utils/ScreenUtil';
 
 @Entry
 @Component
@@ -28,6 +30,7 @@ struct TodoAddPage {
   @State deadlineLabel: string = '';
   @StorageLink('todoRefreshTrigger') refreshTrigger: number = 0;
   @StorageLink('deadlinePickerResult') @Watch('onDeadlinePicked') deadlinePickerResult: number = 0;
+  @StorageLink('currentBreakpoint') currentBreakpoint: string = BreakpointType.SM;
 
   datePickDialogController: CustomDialogController = new CustomDialogController({
     builder: DatePickDialog(),
@@ -35,8 +38,12 @@ struct TodoAddPage {
   });
 
   /**
-   * Called when the date picker dialog confirms a selection.
+   * Whether current device is a tablet.
    */
+  private isTablet(): boolean {
+    return this.currentBreakpoint === BreakpointType.MD || this.currentBreakpoint === BreakpointType.LG;
+  }
+
   onDeadlinePicked(): void {
     if (this.deadlinePickerResult > 0) {
       this.deadlineTimestamp = this.deadlinePickerResult;
@@ -44,16 +51,10 @@ struct TodoAddPage {
     }
   }
 
-  /**
-   * Navigate back without saving.
-   */
   private goBack(): void {
     router.back();
   }
 
-  /**
-   * Save the todo item and navigate back.
-   */
   private saveTodo(): void {
     if (this.inputTitle.trim().length > 0) {
       this.dataStore.addTodo(this.inputTitle.trim(), this.inputContent.trim(), this.deadlineTimestamp);
@@ -62,117 +63,134 @@ struct TodoAddPage {
     }
   }
 
-  /**
-   * Format deadline timestamp to display string.
-   */
   private formatDeadlineLabel(timestamp: number): string {
-    let date = new Date(timestamp);
-    let year = date.getFullYear();
-    let month = (date.getMonth() + 1).toString();
-    if (month.length < 2) {
-      month = '0' + month;
+    let date: Date = new Date(timestamp);
+    let year: number = date.getFullYear();
+    let monthNum: number = date.getMonth() + 1;
+    let monthStr: string = monthNum.toString();
+    if (monthStr.length < 2) {
+      monthStr = '0' + monthStr;
     }
-    let day = date.getDate().toString();
-    if (day.length < 2) {
-      day = '0' + day;
+    let dayStr: string = date.getDate().toString();
+    if (dayStr.length < 2) {
+      dayStr = '0' + dayStr;
     }
-    let hour = date.getHours().toString();
-    if (hour.length < 2) {
-      hour = '0' + hour;
+    let hourStr: string = date.getHours().toString();
+    if (hourStr.length < 2) {
+      hourStr = '0' + hourStr;
     }
-    let minute = date.getMinutes().toString();
-    if (minute.length < 2) {
-      minute = '0' + minute;
+    let minuteStr: string = date.getMinutes().toString();
+    if (minuteStr.length < 2) {
+      minuteStr = '0' + minuteStr;
     }
-    return year + '-' + month + '-' + day + ' ' + hour + ':' + minute;
+    return year + '-' + monthStr + '-' + dayStr + ' ' + hourStr + ':' + minuteStr;
   }
 
   build(): void {
     Column() {
-      // Title bar with back button
+      // Title bar
       Row() {
         Button() {
-          Text('← 返回')
-            .fontSize(16)
-            .fontColor('#007DFF')
+          Text($r('app.string.todo_back'))
+            .fontSize(DimensionUtil.getFp($r('app.float.todo_add_back_font_size')))
+            .fontColor($r('app.color.todo_primary'))
         }
         .backgroundColor(Color.Transparent)
         .onClick(() => {
           this.goBack();
         })
 
-        Text('新建待办')
-          .fontSize(20)
+        Text($r('app.string.todo_new'))
+          .fontSize(DimensionUtil.getFp($r('app.float.todo_add_title_font_size')))
           .fontWeight(FontWeight.Bold)
-          .fontColor('#182431')
+          .fontColor($r('app.color.todo_text_primary'))
           .layoutWeight(1)
           .textAlign(TextAlign.Center)
       }
       .width('100%')
-      .height(56)
-      .padding({ left: 12, right: 12 })
+      .height(DimensionUtil.getVp($r('app.float.todo_add_title_bar_height')))
+      .padding({
+        left: DimensionUtil.getVp($r('app.float.todo_add_title_bar_padding')),
+        right: DimensionUtil.getVp($r('app.float.todo_add_title_bar_padding'))
+      })
 
-      // Input area
+      // Form content (centered with max-width on tablet)
       Column() {
         // Title input
-        Text('待办标题')
-          .fontSize(14)
-          .fontColor('#666666')
+        Text($r('app.string.todo_title_label'))
+          .fontSize(DimensionUtil.getFp($r('app.float.todo_add_label_font_size')))
+          .fontColor($r('app.color.todo_text_secondary'))
           .width('100%')
-          .margin({ bottom: 8 })
+          .margin({ bottom: DimensionUtil.getVp($r('app.float.todo_add_label_margin_bottom')) })
 
-        TextInput({ text: this.inputTitle, placeholder: '请输入待办事项标题' })
+        TextInput({ text: this.inputTitle, placeholder: $r('app.string.todo_title_placeholder') })
           .width('100%')
-          .height(48)
-          .fontSize(16)
-          .backgroundColor('#FFFFFF')
-          .borderRadius(12)
-          .padding({ left: 16, right: 16 })
-          .border({ width: 1, color: '#E5E7EB' })
+          .height(DimensionUtil.getVp($r('app.float.todo_add_input_height')))
+          .fontSize(DimensionUtil.getFp($r('app.float.todo_add_input_font_size')))
+          .backgroundColor($r('app.color.todo_surface'))
+          .borderRadius(DimensionUtil.getVp($r('app.float.todo_add_input_radius')))
+          .padding({
+            left: DimensionUtil.getVp($r('app.float.todo_add_input_padding_h')),
+            right: DimensionUtil.getVp($r('app.float.todo_add_input_padding_h'))
+          })
+          .border({ width: 1, color: $r('app.color.todo_border') })
           .onChange((value: string) => {
             this.inputTitle = value;
           })
 
-        // Divider
         Divider()
           .strokeWidth(1)
-          .color('#E5E7EB')
-          .margin({ top: 20, bottom: 20 })
+          .color($r('app.color.todo_border'))
+          .margin({
+            top: DimensionUtil.getVp($r('app.float.todo_add_divider_margin')),
+            bottom: DimensionUtil.getVp($r('app.float.todo_add_divider_margin'))
+          })
 
         // Content input
-        Text('内容')
-          .fontSize(14)
-          .fontColor('#666666')
+        Text($r('app.string.todo_content_label'))
+          .fontSize(DimensionUtil.getFp($r('app.float.todo_add_label_font_size')))
+          .fontColor($r('app.color.todo_text_secondary'))
           .width('100%')
-          .margin({ bottom: 8 })
+          .margin({ bottom: DimensionUtil.getVp($r('app.float.todo_add_label_margin_bottom')) })
 
-        TextArea({ text: this.inputContent, placeholder: '请输入待办事项的具体内容（选填）' })
+        TextArea({ text: this.inputContent, placeholder: $r('app.string.todo_content_placeholder') })
           .width('100%')
-          .height(160)
-          .fontSize(15)
-          .backgroundColor('#FFFFFF')
-          .borderRadius(12)
-          .padding({ left: 16, right: 16, top: 12, bottom: 12 })
-          .border({ width: 1, color: '#E5E7EB' })
+          .height(DimensionUtil.getVp($r('app.float.todo_add_textarea_height')))
+          .fontSize(DimensionUtil.getFp($r('app.float.todo_add_textarea_font_size')))
+          .backgroundColor($r('app.color.todo_surface'))
+          .borderRadius(DimensionUtil.getVp($r('app.float.todo_add_input_radius')))
+          .padding({
+            left: DimensionUtil.getVp($r('app.float.todo_add_textarea_padding_h')),
+            right: DimensionUtil.getVp($r('app.float.todo_add_textarea_padding_h')),
+            top: DimensionUtil.getVp($r('app.float.todo_add_textarea_padding_v')),
+            bottom: DimensionUtil.getVp($r('app.float.todo_add_textarea_padding_v'))
+          })
+          .border({ width: 1, color: $r('app.color.todo_border') })
           .onChange((value: string) => {
             this.inputContent = value;
           })
       }
       .width('100%')
-      .padding(16)
+      .padding(DimensionUtil.getVp($r('app.float.todo_add_section_padding')))
 
       // Deadline section
       Divider()
         .strokeWidth(1)
-        .color('#E5E7EB')
-        .margin({ top: 4, bottom: 16 })
+        .color($r('app.color.todo_border'))
+        .margin({
+          top: DimensionUtil.getVp($r('app.float.todo_add_divider_margin_small_t')),
+          bottom: DimensionUtil.getVp($r('app.float.todo_add_divider_margin_small_b'))
+        })
 
-      Text('截止日期')
-        .fontSize(14)
-        .fontColor('#666666')
+      Text($r('app.string.todo_deadline_label'))
+        .fontSize(DimensionUtil.getFp($r('app.float.todo_add_label_font_size')))
+        .fontColor($r('app.color.todo_text_secondary'))
         .width('100%')
-        .padding({ left: 16, right: 16 })
-        .margin({ bottom: 8 })
+        .padding({
+          left: DimensionUtil.getVp($r('app.float.todo_add_section_padding')),
+          right: DimensionUtil.getVp($r('app.float.todo_add_section_padding'))
+        })
+        .margin({ bottom: DimensionUtil.getVp($r('app.float.todo_add_deadline_section_margin_b')) })
 
       Row() {
         Radio({ value: 'none', group: 'deadlineGroup' })
@@ -184,10 +202,13 @@ struct TodoAddPage {
               this.deadlineLabel = '';
             }
           })
-        Text('无截止日期')
-          .fontSize(14)
-          .fontColor('#182431')
-          .margin({ left: 4, right: 24 })
+        Text($r('app.string.todo_radio_none'))
+          .fontSize(DimensionUtil.getFp($r('app.float.todo_add_radio_font_size')))
+          .fontColor($r('app.color.todo_text_primary'))
+          .margin({
+            left: DimensionUtil.getVp($r('app.float.todo_add_radio_margin_left')),
+            right: DimensionUtil.getVp($r('app.float.todo_add_radio_margin_right'))
+          })
 
         Radio({ value: 'set', group: 'deadlineGroup' })
           .checked(this.hasDeadline)
@@ -196,26 +217,33 @@ struct TodoAddPage {
               this.hasDeadline = true;
             }
           })
-        Text('有截止日期')
-          .fontSize(14)
-          .fontColor('#182431')
-          .margin({ left: 4 })
+        Text($r('app.string.todo_radio_set'))
+          .fontSize(DimensionUtil.getFp($r('app.float.todo_add_radio_font_size')))
+          .fontColor($r('app.color.todo_text_primary'))
+          .margin({ left: DimensionUtil.getVp($r('app.float.todo_add_radio_margin_left')) })
       }
       .width('100%')
-      .padding({ left: 16, right: 16 })
-      .margin({ bottom: 12 })
+      .padding({
+        left: DimensionUtil.getVp($r('app.float.todo_add_section_padding')),
+        right: DimensionUtil.getVp($r('app.float.todo_add_section_padding'))
+      })
+      .margin({ bottom: DimensionUtil.getVp($r('app.float.todo_add_date_btn_margin_b')) })
 
       if (this.hasDeadline) {
         Button() {
-          Text(this.deadlineLabel.length > 0 ? this.deadlineLabel : '选择截止日期')
-            .fontSize(14)
-            .fontColor('#FFFFFF')
+          Text(this.deadlineLabel.length > 0 ? this.deadlineLabel : $r('app.string.todo_select_date'))
+            .fontSize(DimensionUtil.getFp($r('app.float.todo_add_date_btn_font_size')))
+            .fontColor($r('app.color.todo_surface'))
         }
         .width('100%')
-        .height(44)
-        .backgroundColor('#007DFF')
-        .borderRadius(12)
-        .margin({ left: 16, right: 16, bottom: 12 })
+        .height(DimensionUtil.getVp($r('app.float.todo_add_date_btn_height')))
+        .backgroundColor($r('app.color.todo_primary'))
+        .borderRadius(DimensionUtil.getVp($r('app.float.todo_add_date_btn_radius')))
+        .margin({
+          left: DimensionUtil.getVp($r('app.float.todo_add_section_padding')),
+          right: DimensionUtil.getVp($r('app.float.todo_add_section_padding')),
+          bottom: DimensionUtil.getVp($r('app.float.todo_add_date_btn_margin_b'))
+        })
         .onClick(() => {
           this.datePickDialogController.open();
         })
@@ -225,36 +253,43 @@ struct TodoAddPage {
 
       // Bottom buttons
       Row() {
-        Button('取消')
-          .fontSize(16)
-          .fontColor('#666666')
+        Button($r('app.string.todo_cancel_btn'))
+          .fontSize(DimensionUtil.getFp($r('app.float.todo_add_bottom_btn_font_size')))
+          .fontColor($r('app.color.todo_text_secondary'))
           .layoutWeight(1)
-          .height(48)
-          .backgroundColor('#F1F3F5')
-          .borderRadius(12)
-          .margin({ right: 8 })
+          .height(DimensionUtil.getVp($r('app.float.todo_add_bottom_btn_height')))
+          .backgroundColor($r('app.color.todo_background'))
+          .borderRadius(DimensionUtil.getVp($r('app.float.todo_add_bottom_btn_radius')))
+          .margin({ right: DimensionUtil.getVp($r('app.float.todo_add_bottom_btn_margin')) })
           .onClick(() => {
             this.goBack();
           })
 
-        Button('保存')
-          .fontSize(16)
-          .fontColor('#FFFFFF')
+        Button($r('app.string.todo_save'))
+          .fontSize(DimensionUtil.getFp($r('app.float.todo_add_bottom_btn_font_size')))
+          .fontColor($r('app.color.todo_surface'))
           .layoutWeight(2)
-          .height(48)
-          .backgroundColor(this.inputTitle.trim().length > 0 ? '#007DFF' : '#B0C4DE')
-          .borderRadius(12)
-          .margin({ left: 8 })
+          .height(DimensionUtil.getVp($r('app.float.todo_add_bottom_btn_height')))
+          .backgroundColor(this.inputTitle.trim().length > 0
+            ? $r('app.color.todo_primary')
+            : $r('app.color.todo_button_disabled'))
+          .borderRadius(DimensionUtil.getVp($r('app.float.todo_add_bottom_btn_radius')))
+          .margin({ left: DimensionUtil.getVp($r('app.float.todo_add_bottom_btn_margin')) })
           .enabled(this.inputTitle.trim().length > 0)
           .onClick(() => {
             this.saveTodo();
           })
       }
       .width('100%')
-      .padding({ left: 16, right: 16, bottom: 24 })
+      .padding({
+        left: DimensionUtil.getVp($r('app.float.todo_add_section_padding')),
+        right: DimensionUtil.getVp($r('app.float.todo_add_section_padding')),
+        bottom: DimensionUtil.getVp($r('app.float.todo_add_bottom_padding_b'))
+      })
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F1F3F5')
+    .backgroundColor($r('app.color.todo_background'))
+    .constraintSize({ maxWidth: this.isTablet() ? 600 : undefined })
   }
 }

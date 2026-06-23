@@ -59,6 +59,98 @@
     {
       "name": "reason",
       "value": "通知"
+    },
+    {
+      "name": "todo_title",
+      "value": "待办事项"
+    },
+    {
+      "name": "todo_new",
+      "value": "新建待办"
+    },
+    {
+      "name": "todo_detail",
+      "value": "待办详情"
+    },
+    {
+      "name": "todo_back",
+      "value": "← 返回"
+    },
+    {
+      "name": "todo_save",
+      "value": "保存"
+    },
+    {
+      "name": "todo_cancel_btn",
+      "value": "取消"
+    },
+    {
+      "name": "todo_delete_btn",
+      "value": "删除"
+    },
+    {
+      "name": "todo_sort_by_deadline",
+      "value": "按截止日期"
+    },
+    {
+      "name": "todo_sort_active",
+      "value": "✓ 截止日期"
+    },
+    {
+      "name": "todo_empty",
+      "value": "暂无待办事项"
+    },
+    {
+      "name": "todo_no_deadline",
+      "value": "📅 无截止日期"
+    },
+    {
+      "name": "todo_no_content",
+      "value": "暂无内容"
+    },
+    {
+      "name": "todo_not_found",
+      "value": "待办事项不存在"
+    },
+    {
+      "name": "todo_title_label",
+      "value": "待办标题"
+    },
+    {
+      "name": "todo_content_label",
+      "value": "内容"
+    },
+    {
+      "name": "todo_deadline_label",
+      "value": "截止日期"
+    },
+    {
+      "name": "todo_create_time_label",
+      "value": "创建时间："
+    },
+    {
+      "name": "todo_title_placeholder",
+      "value": "请输入待办事项标题"
+    },
+    {
+      "name": "todo_content_placeholder",
+      "value": "请输入待办事项的具体内容（选填）"
+    },
+    {
+      "name": "todo_select_date",
+      "value": "选择截止日期"
+    },
+    {
+      "name": "todo_radio_none",
+      "value": "无截止日期"
+    },
+    {
+      "name": "todo_radio_set",
+      "value": "有截止日期"
+    },
+    {
+      "name": "todo_picker_title",
+      "value": "选择截止日期"
     }
   ]
 }

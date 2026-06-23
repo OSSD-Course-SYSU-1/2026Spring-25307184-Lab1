@@ -1,0 +1,1 @@
+- [Auto-invoke 4 skills before edit](auto-invoke-grill-and-arkts.md) — pre-change-notify → grill-me → harmony-next → arkts-syntax-assistant

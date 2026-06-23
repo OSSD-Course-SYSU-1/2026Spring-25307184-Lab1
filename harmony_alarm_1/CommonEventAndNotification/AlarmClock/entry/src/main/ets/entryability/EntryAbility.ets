@@ -18,6 +18,7 @@ import UIAbility from '@ohos.app.ability.UIAbility';
 import PreferencesHandler from '../model/database/PreferencesHandler';
 import Want from '@ohos.app.ability.Want';
 import window from '@ohos.window';
+import { ScreenUtil } from '../common/utils/ScreenUtil';
 
 export default class EntryAbility extends UIAbility {
   onCreate(want: Want): void {
@@ -31,6 +32,7 @@ export default class EntryAbility extends UIAbility {
   async onWindowStageCreate(windowStage: window.WindowStage): Promise<void> {
     globalThis.display = await display.getDefaultDisplay();
     await globalThis.preference.configure(this.context.getApplicationContext());
+    ScreenUtil.getInstance().init(this.context);
     windowStage.loadContent('pages/Index', null);
   }
 }
